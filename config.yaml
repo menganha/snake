@@ -1,0 +1,19 @@
+colors:
+  white : !!python/tuple [255, 255, 255]
+  yellow : !!python/tuple [255, 255, 102]
+  black : !!python/tuple [0, 0, 0]
+  red : !!python/tuple [213, 50, 80]
+  green : !!python/tuple [0, 255, 0]
+  blue : !!python/tuple [50, 153, 213]
+
+font:
+  default : "bahnschrift"
+  score : "comicsansms"
+
+disSize:
+  width : 600
+  height : 400
+
+gameOpt:
+  snakeBlockSize : 10
+  snakeSpeed : 10.0
