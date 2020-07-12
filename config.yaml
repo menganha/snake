@@ -7,8 +7,8 @@ colors:
   blue : !!python/tuple [50, 153, 213]
 
 font:
-  default : "bahnschrift"
-  score : "comicsansms"
+  default : "pressstart2p"
+  score : "pressstart2p"
 
 disSize:
   width : 600

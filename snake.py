@@ -2,20 +2,22 @@ import pygame
 import yaml
 import sys
 import random
+from Controls import Controls
 
 
 class Game:
     def __init__(self, config):
         pygame.init()
-        pygame.display.set_caption('Snake Game by Edureka')
+        pygame.display.set_caption('Snake and Jerry')
         self.colors = config['colors']
         self.dim = config['disSize']
         self.snakeBlockSize = config['gameOpt']['snakeBlockSize']
         self.snakeSpeed = config['gameOpt']['snakeSpeed']
         self.display = pygame.display.set_mode((self.dim['width'], self.dim['height']))
-        self.font_style = pygame.font.SysFont(config['font']['default'], 25)
+        self.font_style = pygame.font.SysFont(config['font']['default'], 13)
         self.score_font = pygame.font.SysFont(config['font']['score'], 35)
         self.clock = pygame.time.Clock()
+        self.controls = Controls()
 
     def debug_display(self, x, y):
         value = self.font_style.render("x: {:}, y: {:}".format(x, y), True, self.colors['white'])
@@ -43,9 +45,6 @@ class Game:
         x1 = round(self.dim['width'] / 2)
         y1 = round(self.dim['height'] / 2)
 
-        x1_change = 0
-        y1_change = 0
-
         snake_List = []
         Length_of_snake = 1
 
@@ -68,38 +67,26 @@ class Game:
                         if event.key == pygame.K_c:
                             self.gameLoop()
 
-            for event in pygame.event.get():
+            events = pygame.event.get()
+            for event in events:
                 if event.type == pygame.QUIT:
                     game_over = True
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        x1_change = -self.snakeBlockSize
-                        y1_change = 0
-                    elif event.key == pygame.K_RIGHT:
-                        x1_change = self.snakeBlockSize
-                        y1_change = 0
-                    elif event.key == pygame.K_UP:
-                        y1_change = -self.snakeBlockSize
-                        x1_change = 0
-                    elif event.key == pygame.K_DOWN:
-                        y1_change = self.snakeBlockSize
-                        x1_change = 0
 
-            #if x1 >= self.dim['width'] or x1 < 0 or y1 >= self.dim['height'] or y1 < 0:
-                #game_close = True
+            self.controls.handleInput()
+
             if x1 >= self.dim['width']:
                 x1 = 0
             elif x1 < 0:
                 x1 = self.dim['width'] - self.snakeBlockSize
             else:
-                x1 += x1_change
+                x1 += self.controls.x1_change
 
             if y1 >= self.dim['height']:
                 y1 = 0
             elif y1 < 0:
                 y1 = self.dim['height'] - self.snakeBlockSize
             else:
-                y1 += y1_change
+                y1 += self.controls.y1_change
 
             self.display.fill(self.colors['blue'])
             pygame.draw.rect(
@@ -113,7 +100,7 @@ class Game:
             if len(snake_List) > Length_of_snake:
                 del snake_List[0]
 
-            for x in snake_List[:-1]:
+            for x in snake_List[:-1]:  # Checks if it eats itself
                 if x == snake_Head:
                     game_close = True
 
