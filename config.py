@@ -8,6 +8,7 @@ BLACK = (0, 0, 0)
 RED = (213, 50, 80)
 GREEN = (0, 255, 0)
 BLUE = (50, 153, 213)
+GREY = (59, 59, 59)
 FONT = "pressstart2p"
 # Display
 DIS_WIDTH = 600
