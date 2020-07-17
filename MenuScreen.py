@@ -1,6 +1,5 @@
 import pygame
 from Text import Text
-from Controls import Controls
 import config
 
 
@@ -49,7 +48,7 @@ class MenuScreen():
                 self.nextScene = None
 
         # Logic
-        alphaVector = [100 if idx == self.cursorPos else 250 for idx in range(4)]
+        alphaVector = [255 if idx == self.cursorPos else 100 for idx in range(4)]
         self.playButton.alpha = alphaVector[0]
         self.scoreButton.alpha = alphaVector[1]
         self.creditsButton.alpha = alphaVector[2]

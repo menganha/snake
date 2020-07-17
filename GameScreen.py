@@ -115,6 +115,6 @@ class GameScreen():
             # Score
             self.update_score(display)
             # Debug
-            #self.debug_output(
-                #"x1: {:}, x2: {:}, slist: {:}".format(self.x1, self.y1, self.snake_list),
-                #display)
+            # self.debug_output(
+            #     "x1: {:}, x2: {:}, slist: {:}".format(self.x1, self.y1, self.snake_list),
+            #     display)

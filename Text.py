@@ -55,4 +55,3 @@ class Text():
         centerX = round(disWidth/2 - objWidth/2)
         centerY = round(disHeight/2 - objHeight/2)
         return centerX, centerY
-
