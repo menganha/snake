@@ -1,6 +1,7 @@
 import pygame
 import random
 from Text import Text
+from Food import Food
 from Controls import Controls
 import config
 
@@ -16,8 +17,8 @@ class GameScreen():
         self.y1 = round(config.DIS_HEIGHT / 2)
         self.snake_list = []
         self.Length_of_snake = 1
-        self.foodx = round(random.randrange(0, config.DIS_WIDTH - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
-        self.foody = round(random.randrange(0, config.DIS_HEIGHT - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
+        self.foodSmall = Food()
+        self.foodBig = Food(3, 50)
         self.scoreText = Text(self.textFont, "Your Score: {:}".format(self.Length_of_snake-1), config.WHITE)
         self.eatSound = pygame.mixer.Sound("sounds/eat.wav")
         self.nextScene = self
@@ -90,13 +91,19 @@ class GameScreen():
                 if bodyCoord == self.snake_Head:
                     self.game_over = True
 
-            if self.x1 == self.foodx and self.y1 == self.foody:
+            if self.foodSmall.isEaten(self.x1, self.y1):
                 self.eatSound.play()
-                self.foodx = round(random.randrange(
-                    0, config.DIS_WIDTH - config.SNAKE_BLOCK_SIZE) / 10.0) * 10
-                self.foody = round(random.randrange(
-                    0, config.DIS_HEIGHT - config.SNAKE_BLOCK_SIZE) / 10.0) * 10
+                self.foodSmall.spawn()
+                if self.foodBig.isIdle():
+                    self.foodBig.spawn()
                 self.Length_of_snake += 1
+
+            if self.foodBig.isEaten(self.x1, self.y1):
+                self.eatSound.play()
+                self.foodBig.turnIdle()
+                self.Length_of_snake += 5
+            else:
+                self.foodBig.counter += 1
 
     def update(self, display):
         if self.game_over:
@@ -105,13 +112,11 @@ class GameScreen():
             # Background
             display.fill(config.BLACK)
             #pygame.draw.rect(display, config.BLACK, [0, 0, config.DIS_WIDTH, 20])
-            # Food
-            pygame.draw.rect(
-                display, config.GREEN,
-                [self.foodx, self.foody, config.SNAKE_BLOCK_SIZE, config.SNAKE_BLOCK_SIZE]
-                )
             # Snake
             self.update_snake(display)
+            # Food
+            self.foodSmall.update(display)
+            self.foodBig.update(display)
             # Score
             self.update_score(display)
             # Debug
