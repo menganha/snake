@@ -2,6 +2,7 @@ import pygame
 from Text import Text
 from Food import Food
 from Controls import Controls
+from math import ceil
 import config
 
 
@@ -9,23 +10,44 @@ class GameScreen():
     def __init__(self):
         self.textFont = pygame.font.SysFont(config.FONT, 13)
         self.game_over = False
-        self.gameOverMsg = Text(self.textFont, "You Lost! Press C-Play Again or Q-Quit", config.WHITE)
+        self.gameOverMsg = Text(
+            self.textFont, "You Lost! Press C-Play Again or Q-Quit",
+            config.YELLOW
+            )
         self.gameOverMsg.center()
         self.controls = Controls()
         self.x1 = round(config.DIS_WIDTH / 2)
         self.y1 = round(config.DIS_HEIGHT / 2)
         self.snake_list = []
         self.Length_of_snake = 1
-        self.foodSmall = Food()
-        self.foodBig = Food(3, 50)
-        self.scoreText = Text(self.textFont, "Your Score: {:}".format(self.Length_of_snake-1), config.WHITE)
+        self.textOffset = (3, 3)
+        self.scoreText = Text(
+            self.textFont,
+            "Your Score: {:}".format(self.Length_of_snake-1),
+            config.BLACK, tX=self.textOffset[0], tY=self.textOffset[0]
+            )
+        self.foodSmall = Food(
+            (config.DIS_WIDTH, config.DIS_HEIGHT-self.scoreText.tH-self.textOffset[1])
+            )
+        self.foodBig = Food(
+            (config.DIS_WIDTH, config.DIS_HEIGHT-self.scoreText.tH-self.textOffset[1]),
+            3, 50, 1.1
+            )
         self.eatSound = pygame.mixer.Sound("sounds/eat.wav")
         self.nextScene = self
         self.menuScene = None
 
+    def reStart(self):
+        self.Length_of_snake = 1
+        self.snake_list = []
+        self.x1 = round(config.DIS_WIDTH / 2)
+        self.y1 = round(config.DIS_HEIGHT / 2)
+        self.controls.stop()
+        self.foodSmall.spawn()
+        self.foodBig.spawn()
+
     def update_score(self, display):
         self.scoreText.text = "Score: {:}".format((self.Length_of_snake-1)*10)
-        self.scoreText.tX, self.scoreText.tY = (3, 3)
         self.scoreText.reRender()
         self.scoreText.update(display)
 
@@ -57,6 +79,7 @@ class GameScreen():
                         self.nextScene = self.menuScene
                     if event.key == pygame.K_c:
                         self.game_over = False
+                        self.reStart()
 
         else:
             for event in pygame.event.get():
@@ -73,8 +96,8 @@ class GameScreen():
 
             self.y1 += self.controls.y1_change
             if self.y1 >= config.DIS_HEIGHT:
-                self.y1 = 0
-            elif self.y1 < 0:
+                self.y1 = ceil((self.scoreText.tH + self.textOffset[1])/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
+            elif self.y1 < self.scoreText.tH + self.textOffset[1]:
                 self.y1 = config.DIS_HEIGHT - config.SNAKE_BLOCK_SIZE
 
             self.snake_Head = []
@@ -91,7 +114,7 @@ class GameScreen():
             if self.foodSmall.isEaten(self.x1, self.y1):
                 self.eatSound.play()
                 self.foodSmall.spawn()
-                if self.foodBig.isIdle():
+                if self.foodBig.isIdle:
                     self.foodBig.spawn()
                 self.Length_of_snake += 1
 
@@ -99,8 +122,6 @@ class GameScreen():
                 self.eatSound.play()
                 self.foodBig.turnIdle()
                 self.Length_of_snake += 5
-            else:
-                self.foodBig.spawnCounter += 1
 
     def update(self, display):
         if self.game_over:
@@ -115,6 +136,10 @@ class GameScreen():
             self.foodSmall.update(display)
             self.foodBig.update(display)
             # Score
+            pygame.draw.rect(
+                display, config.WHITE,
+                [0, 0, config.DIS_WIDTH, self.scoreText.tH + self.textOffset[1]]
+                )
             self.update_score(display)
             # Debug
             # self.debug_output(
