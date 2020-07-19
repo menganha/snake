@@ -12,15 +12,15 @@ class Food():
         self.size = self.unitSize * config.SNAKE_BLOCK_SIZE
         self.isAvailable = True
         self.spawnTime = spawnTime
-        self.counter = 0
+        self.spawnCounter = 0
 
     def spawn(self):
         self.posX = round(random.randrange(0, config.DIS_WIDTH - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
         self.posY = round(random.randrange(0, config.DIS_HEIGHT - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
-        self.counter = 0
+        self.spawnCounter = 0
 
     def isIdle(self):
-        return self.counter > self.spawnTime
+        return self.spawnCounter > self.spawnTime
 
     def turnIdle(self):
         self.posX = config.DIS_WIDTH
@@ -35,7 +35,7 @@ class Food():
             return False
 
     def update(self, display):
-        if self.counter < self.spawnTime:
+        if self.spawnCounter < self.spawnTime:
             pygame.draw.rect(display, config.GREEN, [self.posX, self.posY, self.size, self.size])
         else:
             self.turnIdle()
