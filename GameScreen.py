@@ -1,5 +1,4 @@
 import pygame
-import random
 from Text import Text
 from Food import Food
 from Controls import Controls
@@ -66,19 +65,17 @@ class GameScreen():
 
             self.controls.handleInput()
 
+            self.x1 += self.controls.x1_change
             if self.x1 >= config.DIS_WIDTH:
                 self.x1 = 0
-            elif self.x1 < 0:
+            elif self.x1 < 0:        self.y1 = round(config.DIS_HEIGHT / 2)
                 self.x1 = config.DIS_WIDTH - config.SNAKE_BLOCK_SIZE
-            else:
-                self.x1 += self.controls.x1_change
 
+            self.y1 += self.controls.y1_change
             if self.y1 >= config.DIS_HEIGHT:
                 self.y1 = 0
             elif self.y1 < 0:
                 self.y1 = config.DIS_HEIGHT - config.SNAKE_BLOCK_SIZE
-            else:
-                self.y1 += self.controls.y1_change
 
             self.snake_Head = []
             self.snake_Head.append(self.x1)
@@ -103,7 +100,7 @@ class GameScreen():
                 self.foodBig.turnIdle()
                 self.Length_of_snake += 5
             else:
-                self.foodBig.counter += 1
+                self.foodBig.spawnCounter += 1
 
     def update(self, display):
         if self.game_over:
