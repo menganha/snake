@@ -14,6 +14,10 @@ class Controls():
         self.my = 0
         self.pause = False
 
+    def stop(self):
+        self.x1_change = 0
+        self.y1_change = 0
+
     def handleInput(self):
         self.mx, self.my = pygame.mouse.get_pos()
         keys = pygame.key.get_pressed()
