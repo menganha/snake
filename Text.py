@@ -3,15 +3,15 @@ from config import DIS_WIDTH, DIS_HEIGHT
 
 
 class Text():
-    def __init__(self, font: pygame.font.Font, text, color, background=None, alpha=255):
+    def __init__(self, font: pygame.font.Font, text, color, background=None, alpha=255, tX=0, tY=0):
         self.font = font
         self.text = text
         self.color = color
         self.background = background
+        self.tX = tX
+        self.tY = tY
         self.textS = self.font.render(self.text, False, color, background)
         self.tW, self.tH = self.textS.get_size()
-        self.tX = 0
-        self.tY = 0
         self.alpha = alpha
         self.alpha_change = 1
 
