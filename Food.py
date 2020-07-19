@@ -1,30 +1,36 @@
 import pygame
 import random
 import config
+from math import ceil
 
 
 class Food():
     # TODO: introduce typing information to enforce alway an int in unitSize
-    def __init__(self, unitSize=1, spawnTime=10):
-        self.posX = round(random.randrange(0, config.DIS_WIDTH - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
-        self.posY = round(random.randrange(0, config.DIS_HEIGHT - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
+    def __init__(self, playScreenSize, unitSize=1, spawnTime=0, prob=1.1):
+        self.playScreenSize = playScreenSize
+        self.posX = round(random.randrange(0, self.playScreenSize[0] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
+        self.posY = round(random.randrange(0, self.playScreenSize[1] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE \
+            + ceil((config.DIS_HEIGHT - self.playScreenSize[1])/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
         self.unitSize = unitSize
         self.size = self.unitSize * config.SNAKE_BLOCK_SIZE
         self.isAvailable = True
         self.spawnTime = spawnTime
         self.spawnCounter = 0
+        self.prob = prob
+        self.isIdle = False
 
     def spawn(self):
-        self.posX = round(random.randrange(0, config.DIS_WIDTH - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
-        self.posY = round(random.randrange(0, config.DIS_HEIGHT - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
-        self.spawnCounter = 0
-
-    def isIdle(self):
-        return self.spawnCounter > self.spawnTime
+        if random.randrange(1, 10)/10 <= self.prob:
+            self.posX = round(random.randrange(0, self.playScreenSize[0] - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
+            self.posY = round(random.randrange(0, self.playScreenSize[1] - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE \
+                + ceil((config.DIS_HEIGHT - self.playScreenSize[1])/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
+            self.spawnCounter = 0
+            self.isIdle = False
 
     def turnIdle(self):
         self.posX = config.DIS_WIDTH
         self.posY = config.DIS_HEIGHT
+        self.isIdle = True
 
     def isEaten(self, x, y):
         xMet = [x == self.posX+config.SNAKE_BLOCK_SIZE*idx for idx in range(self.unitSize)]
@@ -35,7 +41,9 @@ class Food():
             return False
 
     def update(self, display):
-        if self.spawnCounter < self.spawnTime:
+        if self.spawnCounter <= self.spawnTime:
+            if self.spawnTime != 0:
+                self.spawnCounter += 1
             pygame.draw.rect(display, config.GREEN, [self.posX, self.posY, self.size, self.size])
-        else:
+        elif not self.isIdle:
             self.turnIdle()
