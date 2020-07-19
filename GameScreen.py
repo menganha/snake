@@ -68,7 +68,7 @@ class GameScreen():
             self.x1 += self.controls.x1_change
             if self.x1 >= config.DIS_WIDTH:
                 self.x1 = 0
-            elif self.x1 < 0:        self.y1 = round(config.DIS_HEIGHT / 2)
+            elif self.x1 < 0:
                 self.x1 = config.DIS_WIDTH - config.SNAKE_BLOCK_SIZE
 
             self.y1 += self.controls.y1_change
