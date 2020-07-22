@@ -4,6 +4,17 @@ from Food import Food
 from Controls import Controls
 from math import ceil
 import config
+# TODO:
+# * Improve game over screen. Possibly reuse the pause menu screen
+# Bug fixes:
+# * Big Food finite spawn should be paused both in pause screen and at the
+#   beggining of the game where no key has been pressed
+# * Using escape to exit the pause menu is not possible give the current
+#   input handling. Change it so that it uses the event queue
+# * Big food is positioned in place near the border of the screen
+#   where part of it is clipped
+# For Screen Shake: refactor all update functions to accept an offset which will
+# create the shake
 
 
 class GameScreen():
@@ -26,13 +37,15 @@ class GameScreen():
             "Your Score: {:}".format(self.Length_of_snake-1),
             config.BLACK, tX=self.textOffset[0], tY=self.textOffset[0]
             )
+        self.spawnTime = 50  # In frames
         self.foodSmall = Food(
             (config.DIS_WIDTH, config.DIS_HEIGHT-self.scoreText.tH-self.textOffset[1])
             )
         self.foodBig = Food(
             (config.DIS_WIDTH, config.DIS_HEIGHT-self.scoreText.tH-self.textOffset[1]),
-            3, 50, 0.5
+            3, self.spawnTime, 0.5
             )
+        self.foodBig.turnIdle()
         self.cursorPos = 0
         self.eatSound = pygame.mixer.Sound("sounds/eat.wav")
         self.selectSound = pygame.mixer.Sound("sounds/select.wav")
@@ -70,13 +83,13 @@ class GameScreen():
         maxH = maxH - minY + 2*border
         self.menuSurface = pygame.Surface((maxW, maxH))
         self.menuSurface.fill(config.BLACK)
-        self.menuSurface.set_alpha(50)
+        self.menuSurface.set_alpha(100)
 
     def updatePauseMenu(self, display):
         display.blit(self.menuSurface, [self.minX, self.minY])
         for idx, button in enumerate(self.pauseMenuText):
             if idx == 0:
-                button.alppha = 255
+                button.alpha = 255
             elif idx - 1 == self.cursorPos:
                 button.alpha = 255
             else:
@@ -186,13 +199,16 @@ class GameScreen():
                 self.eatSound.play()
                 self.foodSmall.spawn()
                 if self.foodBig.isIdle:
-                    self.foodBig.spawn()
+                    self.foodBig.spawn(self.spawnTime)
                 self.Length_of_snake += 1
 
             if self.foodBig.isEaten(self.x1, self.y1):
                 self.eatSound.play()
                 self.foodBig.turnIdle()
                 self.Length_of_snake += 5
+
+            if not self.foodBig.isIdle:
+                self.foodBig.spawnTime -= 1
 
     def update(self, display):
         if self.game_over:

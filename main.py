@@ -20,7 +20,7 @@ class Game:
         self.menuScreen.gameScene = self.gameScreen
         self.gameScreen.menuScene = self.menuScreen
 
-    def gameLoop(self):
+    def game_loop(self):
         activeScene = self.menuScreen
         while activeScene:
             activeScene.render()
@@ -35,4 +35,4 @@ class Game:
 
 if __name__ == '__main__':
     gameApp = Game()
-    gameApp.gameLoop()
+    gameApp.game_loop()
