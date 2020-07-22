@@ -26,6 +26,7 @@ class MenuScreen():
     def render(self):
         # Event Handling
         startGame = False
+        self.nextScene = self
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
@@ -37,12 +38,12 @@ class MenuScreen():
                     elif self.cursorPos == 3:
                         self.nextScene = None
                 if event.key == pygame.K_DOWN:
-                    self.soundMove.play()
                     if not self.cursorPos >= 3:
+                        self.soundMove.play()
                         self.cursorPos += 1
                 if event.key == pygame.K_UP:
-                    self.soundMove.play()
                     if not self.cursorPos <= 0:
+                        self.soundMove.play()
                         self.cursorPos -= 1
             if event.type == pygame.QUIT:
                 self.nextScene = None
@@ -59,6 +60,7 @@ class MenuScreen():
         self.exitButton.reRender()
         if startGame:
             self.nextScene = self.gameScene
+            self.gameScene.reStart()
 
     def update(self, display):
         display.fill(config.BLACK)

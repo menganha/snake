@@ -31,11 +31,58 @@ class GameScreen():
             )
         self.foodBig = Food(
             (config.DIS_WIDTH, config.DIS_HEIGHT-self.scoreText.tH-self.textOffset[1]),
-            3, 50, 1.1
+            3, 50, 0.5
             )
+        self.cursorPos = 0
         self.eatSound = pygame.mixer.Sound("sounds/eat.wav")
+        self.selectSound = pygame.mixer.Sound("sounds/select.wav")
         self.nextScene = self
         self.menuScene = None
+        self.createPauseMenu()
+
+    def createPauseMenu(self):
+        self.pauseMenuText = [
+            Text(self.textFont, "P A U S E", config.WHITE),
+            Text(self.textFont, "Continue", config.WHITE),
+            Text(self.textFont, "Exit", config.WHITE)]
+
+        for idx, button in enumerate(self.pauseMenuText):
+            button.center(offY=button.tH*2*(idx-1))
+            if idx == 0:
+                minX = button.tX
+                minY = button.tY
+                maxW = button.tW
+                maxH = button.tH
+            else:
+                if button.tX < minX:
+                    minX = button.tX
+                if button.tY < minY:
+                    minX = button.tX
+                if button.tW > maxW:
+                    maxW = button.tW
+                if button.tY + button.tH > maxH:
+                    maxH = button.tY + button.tH
+
+        border = 10
+        self.minX = minX - border
+        self.minY = minY - border
+        maxW = maxW + 2*border
+        maxH = maxH - minY + 2*border
+        self.menuSurface = pygame.Surface((maxW, maxH))
+        self.menuSurface.fill(config.BLACK)
+        self.menuSurface.set_alpha(50)
+
+    def updatePauseMenu(self, display):
+        display.blit(self.menuSurface, [self.minX, self.minY])
+        for idx, button in enumerate(self.pauseMenuText):
+            if idx == 0:
+                button.alppha = 255
+            elif idx - 1 == self.cursorPos:
+                button.alpha = 255
+            else:
+                button.alpha = 125
+            button.reRender()
+            button.update(display)
 
     def reStart(self):
         self.Length_of_snake = 1
@@ -71,8 +118,9 @@ class GameScreen():
 
     def render(self):
 
-        if self.game_over:
+        self.nextScene = self
 
+        if self.game_over:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
@@ -80,6 +128,29 @@ class GameScreen():
                     if event.key == pygame.K_c:
                         self.game_over = False
                         self.reStart()
+
+        elif self.controls.pause:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.nextScene = None
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        if self.cursorPos == 0:
+                            self.controls.pause = False
+                        elif self.cursorPos == 1:
+                            self.controls.pause = False
+                            self.cursorPos = 0
+                            self.nextScene = self.menuScene
+                    if event.key == pygame.K_DOWN:
+                        if not self.cursorPos >= 1:
+                            self.selectSound.play()
+                            self.cursorPos += 1
+                    if event.key == pygame.K_UP:
+                        if not self.cursorPos <= 0:
+                            self.selectSound.play()
+                            self.cursorPos -= 1
+                    if event.key == pygame.K_ESCAPE:
+                        self.controls.pause = False
 
         else:
             for event in pygame.event.get():
@@ -129,7 +200,6 @@ class GameScreen():
         else:
             # Background
             display.fill(config.BLACK)
-            #pygame.draw.rect(display, config.BLACK, [0, 0, config.DIS_WIDTH, 20])
             # Snake
             self.update_snake(display)
             # Food
@@ -141,6 +211,8 @@ class GameScreen():
                 [0, 0, config.DIS_WIDTH, self.scoreText.tH + self.textOffset[1]]
                 )
             self.update_score(display)
+            if self.controls.pause:
+                self.updatePauseMenu(display)
             # Debug
             # self.debug_output(
             #     "x1: {:}, x2: {:}, slist: {:}".format(self.x1, self.y1, self.snake_list),

@@ -18,6 +18,7 @@ class Game:
         self.menuScreen = MenuScreen()
         self.gameScreen = GameScreen()
         self.menuScreen.gameScene = self.gameScreen
+        self.gameScreen.menuScene = self.menuScreen
 
     def gameLoop(self):
         activeScene = self.menuScreen
