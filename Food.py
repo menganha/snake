@@ -39,8 +39,10 @@ class Food():
         else:
             return False
 
-    def update(self, display):
+    def update(self, display, offset):
         if self.spawnTime >= 0:
-            pygame.draw.rect(display, config.GREEN, [self.posX, self.posY, self.size, self.size])
+            pygame.draw.rect(
+                display, config.GREEN,
+                [self.posX+offset[0], self.posY+offset[1], self.size, self.size])
         elif not self.isIdle:
             self.turnIdle()

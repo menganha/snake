@@ -3,6 +3,7 @@ from Text import Text
 from Food import Food
 from Controls import Controls
 from math import ceil
+from random import randint
 import config
 # TODO:
 # * Improve game over screen. Possibly reuse the pause menu screen
@@ -50,6 +51,7 @@ class GameScreen():
         self.eatSound = pygame.mixer.Sound("sounds/eat.wav")
         self.selectSound = pygame.mixer.Sound("sounds/select.wav")
         self.nextScene = self
+        self.screen_shake = 0
         self.menuScene = None
         self.createPauseMenu()
 
@@ -116,7 +118,7 @@ class GameScreen():
         debugText.center(offY=40)
         debugText.update(display)
 
-    def update_snake(self, display):
+    def update_snake(self, display, offset=[0, 0]):
         bodyColor = config.WHITE
         headColor = config.YELLOW
         for idx, x in enumerate(self.snake_list):
@@ -126,7 +128,10 @@ class GameScreen():
                 color = bodyColor
             pygame.draw.rect(
                 display, color,
-                [x[0], x[1], config.SNAKE_BLOCK_SIZE, config.SNAKE_BLOCK_SIZE]
+                [
+                    x[0]+offset[0], x[1]+offset[1],
+                    config.SNAKE_BLOCK_SIZE, config.SNAKE_BLOCK_SIZE
+                    ]
             )
 
     def render(self):
@@ -206,6 +211,7 @@ class GameScreen():
                 self.eatSound.play()
                 self.foodBig.turnIdle()
                 self.Length_of_snake += 5
+                self.screen_shake = 13
 
             if not self.foodBig.isIdle:
                 self.foodBig.spawnTime -= 1
@@ -214,13 +220,19 @@ class GameScreen():
         if self.game_over:
             self.gameOverMsg.update(display)
         else:
+            offset = [0, 0]
+            if self.screen_shake:
+                offset[0] = randint(0, 14) - 7
+                offset[1] = randint(0, 14) - 7
+                self.screen_shake -= 1
+
             # Background
             display.fill(config.BLACK)
             # Snake
-            self.update_snake(display)
+            self.update_snake(display, offset)
             # Food
-            self.foodSmall.update(display)
-            self.foodBig.update(display)
+            self.foodSmall.update(display, offset)
+            self.foodBig.update(display, offset)
             # Score
             pygame.draw.rect(
                 display, config.WHITE,
