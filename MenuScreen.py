@@ -5,8 +5,8 @@ import config
 
 class MenuScreen():
     def __init__(self):
-        titleFont = pygame.font.SysFont(config.FONT, 28)
-        textFont = pygame.font.SysFont(config.FONT, 15)
+        titleFont = pygame.font.Font(config.FONT, 28)
+        textFont = pygame.font.Font(config.FONT, 15)
         self.title = Text(titleFont, "S N A K E", config.WHITE)
         self.title.center(offY=-3*self.title.tH)
         self.playButton = Text(textFont, "Play Game", config.WHITE)

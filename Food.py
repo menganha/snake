@@ -6,7 +6,7 @@ from math import ceil
 
 class Food():
     # TODO: introduce typing information to enforce alway an int in unitSize
-    def __init__(self, playScreenSize, unitSize=1, spawnTime=0, prob=1.1):
+    def __init__(self, playScreenSize, unitSize=1, spawnTime=0, prob=1.1, color=config.GREEN):
         self.playScreenSize = playScreenSize
         self.posX = round(random.randrange(0, self.playScreenSize[0] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
         self.posY = round(random.randrange(0, self.playScreenSize[1] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE \
@@ -16,6 +16,7 @@ class Food():
         self.isAvailable = True
         self.spawnTime = spawnTime
         self.prob = prob
+        self.color = color
         self.isIdle = False
 
     def spawn(self, spawnTime=0):
@@ -42,7 +43,7 @@ class Food():
     def update(self, display, offset):
         if self.spawnTime >= 0:
             pygame.draw.rect(
-                display, config.GREEN,
+                display, self.color,
                 [self.posX+offset[0], self.posY+offset[1], self.size, self.size])
         elif not self.isIdle:
             self.turnIdle()

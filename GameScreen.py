@@ -40,15 +40,17 @@ class GameScreen():
             )
         self.spawnTime = 50  # In frames
         self.foodSmall = Food(
-            (config.DIS_WIDTH, config.DIS_HEIGHT-self.scoreText.tH-self.textOffset[1])
+            (config.DIS_WIDTH, config.DIS_HEIGHT-self.scoreText.tH-self.textOffset[1]),
+            2
             )
         self.foodBig = Food(
             (config.DIS_WIDTH, config.DIS_HEIGHT-self.scoreText.tH-self.textOffset[1]),
-            3, self.spawnTime, 0.5
+            3, self.spawnTime, 0.5, config.BLUE
             )
         self.foodBig.turnIdle()
         self.cursorPos = 0
         self.eatSound = pygame.mixer.Sound("sounds/eat.wav")
+        self.eatBigSound = pygame.mixer.Sound("sounds/eatBig_2.wav")
         self.selectSound = pygame.mixer.Sound("sounds/select.wav")
         self.nextScene = self
         self.screen_shake = 0
@@ -105,6 +107,7 @@ class GameScreen():
         self.x1 = round(config.DIS_WIDTH / 2)
         self.y1 = round(config.DIS_HEIGHT / 2)
         self.controls.stop()
+        self.screen_shake = 0
         self.foodSmall.spawn()
         self.foodBig.spawn()
 
@@ -208,7 +211,7 @@ class GameScreen():
                 self.Length_of_snake += 1
 
             if self.foodBig.isEaten(self.x1, self.y1):
-                self.eatSound.play()
+                self.eatBigSound.play()
                 self.foodBig.turnIdle()
                 self.Length_of_snake += 5
                 self.screen_shake = 13
