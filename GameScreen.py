@@ -20,7 +20,7 @@ import config
 
 class GameScreen():
     def __init__(self):
-        self.textFont = pygame.font.SysFont(config.FONT, 13)
+        self.textFont = pygame.font.Font(config.FONT, 13)
         self.game_over = False
         self.gameOverMsg = Text(
             self.textFont, "You Lost! Press C-Play Again or Q-Quit",
