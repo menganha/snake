@@ -45,9 +45,9 @@ class GameScreen():
             )
         self.foodBig = Food(
             (config.DIS_WIDTH, config.DIS_HEIGHT-self.scoreText.tH-self.textOffset[1]),
-            3, self.spawnTime, 0.5, config.BLUE
+            3, self.spawnTime, 0.5, config.GREEN, blinkRate=2
             )
-        self.foodBig.turnIdle()
+        self.foodBig.turn_idle()
         self.cursorPos = 0
         self.eatSound = pygame.mixer.Sound("sounds/eat.wav")
         self.eatBigSound = pygame.mixer.Sound("sounds/eatBig_2.wav")
@@ -89,7 +89,7 @@ class GameScreen():
         self.menuSurface.fill(config.BLACK)
         self.menuSurface.set_alpha(100)
 
-    def updatePauseMenu(self, display):
+    def update_pause_menu(self, display):
         display.blit(self.menuSurface, [self.minX, self.minY])
         for idx, button in enumerate(self.pauseMenuText):
             if idx == 0:
@@ -145,6 +145,7 @@ class GameScreen():
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
+                        self.game_over = False
                         self.nextScene = self.menuScene
                     if event.key == pygame.K_c:
                         self.game_over = False
@@ -207,17 +208,17 @@ class GameScreen():
                 self.eatSound.play()
                 self.foodSmall.spawn()
                 if self.foodBig.isIdle:
-                    self.foodBig.spawn(self.spawnTime)
+                    self.foodBig.spawn()
                 self.Length_of_snake += 1
 
             if self.foodBig.isEaten(self.x1, self.y1):
                 self.eatBigSound.play()
-                self.foodBig.turnIdle()
+                self.foodBig.turn_idle()
                 self.Length_of_snake += 5
                 self.screen_shake = 13
 
-            if not self.foodBig.isIdle:
-                self.foodBig.spawnTime -= 1
+            # if not self.foodBig.isIdle:
+            #     self.foodBig.spawnTime -= 1
 
     def update(self, display):
         if self.game_over:
@@ -243,8 +244,4 @@ class GameScreen():
                 )
             self.update_score(display)
             if self.controls.pause:
-                self.updatePauseMenu(display)
-            # Debug
-            # self.debug_output(
-            #     "x1: {:}, x2: {:}, slist: {:}".format(self.x1, self.y1, self.snake_list),
-            #     display)
+                self.update_pause_menu(display)

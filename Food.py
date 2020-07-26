@@ -6,28 +6,35 @@ from math import ceil
 
 class Food():
     # TODO: introduce typing information to enforce alway an int in unitSize
-    def __init__(self, playScreenSize, unitSize=1, spawnTime=0, prob=1.1, color=config.GREEN):
+    def __init__(self, playScreenSize, unitSize=1, spawnTime=0, prob=1.1, color=config.GREEN, blinkRate=0):
         self.playScreenSize = playScreenSize
-        self.posX = round(random.randrange(0, self.playScreenSize[0] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
-        self.posY = round(random.randrange(0, self.playScreenSize[1] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE \
+        self.posX = round(random.randrange(0, self.playScreenSize[0] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
+            * config.SNAKE_BLOCK_SIZE
+        self.posY = round(random.randrange(0, self.playScreenSize[1] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
+            * config.SNAKE_BLOCK_SIZE \
             + ceil((config.DIS_HEIGHT - self.playScreenSize[1])/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
         self.unitSize = unitSize
         self.size = self.unitSize * config.SNAKE_BLOCK_SIZE
         self.isAvailable = True
         self.spawnTime = spawnTime
+        self.spawnCounter = 0
         self.prob = prob
         self.color = color
+        self.blinkRate = blinkRate
+        self.blinkCounter = 0
         self.isIdle = False
 
-    def spawn(self, spawnTime=0):
+    def spawn(self):
         if random.randrange(1, 10)/10 <= self.prob:
-            self.posX = round(random.randrange(0, self.playScreenSize[0] - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
-            self.posY = round(random.randrange(0, self.playScreenSize[1] - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE \
+            self.posX = round(random.randrange(0, self.playScreenSize[0] - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
+                * config.SNAKE_BLOCK_SIZE
+            self.posY = round(random.randrange(0, self.playScreenSize[1] - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
+                * config.SNAKE_BLOCK_SIZE \
                 + ceil((config.DIS_HEIGHT - self.playScreenSize[1])/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
-            self.spawnTime = spawnTime
+            self.spawnCounter = self.spawnTime
             self.isIdle = False
 
-    def turnIdle(self):
+    def turn_idle(self):
         self.posX = config.DIS_WIDTH
         self.posY = config.DIS_HEIGHT
         self.isIdle = True
@@ -40,10 +47,35 @@ class Food():
         else:
             return False
 
+    def blink(self):
+        '''
+        Returns color based on time
+        '''
+        color = self.color
+        if self.blinkCounter > self.blinkRate and self.blinkCounter <= 2*self.blinkRate:
+            self.blinkCounter -= 1
+        elif self.blinkCounter <= self.blinkRate and self.blinkCounter > 0:
+            color = config.WHITE
+            self.blinkCounter -= 1
+
+        if self.blinkCounter == 0:
+            self.blinkCounter = 2*self.blinkRate
+
+        return color
+
     def update(self, display, offset):
-        if self.spawnTime >= 0:
+
+        if self.spawnCounter >= 0:
+
+            if self.spawnTime > 0:
+                self.spawnCounter -= 1
+
+            color = self.color
+            if self.blinkRate > 0:
+                color = self.blink()
+
             pygame.draw.rect(
-                display, self.color,
+                display, color,
                 [self.posX+offset[0], self.posY+offset[1], self.size, self.size])
         elif not self.isIdle:
-            self.turnIdle()
+            self.turn_idle()
