@@ -2,8 +2,8 @@ import pygame
 from text import Text
 from food import Food
 from menu import Menu
+from snake import Snake
 from controls import Controls
-from math import ceil
 from random import randint
 import config
 # TODO:
@@ -18,22 +18,14 @@ import config
 
 class GameScreen():
     def __init__(self):
+        self.snake = Snake()
+        self.controls = Controls()
         self.textFont = pygame.font.Font(config.FONT, 13)
         self.game_over = False
-        self.gameOverMsg = Text(
-            self.textFont, "You Lost! Press C-Play Again or Q-Quit",
-            config.YELLOW
-            )
-        self.gameOverMsg.center()
-        self.controls = Controls()
-        self.x1 = round(config.DIS_WIDTH / 2)
-        self.y1 = round(config.DIS_HEIGHT / 2)
-        self.snake_list = []
-        self.Length_of_snake = 1
         self.textOffset = (3, 3)
         self.scoreText = Text(
             self.textFont,
-            "Your Score: {:}".format(self.Length_of_snake-1),
+            "Your Score: {:}".format(self.snake.snake_length-1),
             config.BLACK, tX=self.textOffset[0], tY=self.textOffset[0]
             )
         self.spawnTime = 50  # In frames
@@ -61,39 +53,23 @@ class GameScreen():
         self.gameOverMenu = Menu(
             self.textFont,
             ('G A M E   O V E R', config.RED),
-            ('New Game', config.WHITE),
+            ('Retry', config.WHITE),
             ('Exit', config.WHITE))
 
     def restart(self):
-        self.Length_of_snake = 1
-        self.snake_list = []
-        self.x1 = round(config.DIS_WIDTH / 2)
-        self.y1 = round(config.DIS_HEIGHT / 2)
+        self.snake.snake_length = 1
+        self.snake.snake_list = []
+        self.snake.x1 = round(config.DIS_WIDTH / 2)
+        self.snake.y1 = round(config.DIS_HEIGHT / 2)
         self.controls.stop()
         self.screen_shake = 0
         self.foodSmall.spawn()
         self.foodBig.spawn()
 
     def update_score(self, display):
-        self.scoreText.text = "Score: {:}".format((self.Length_of_snake-1)*10)
+        self.scoreText.text = "Score: {:}".format((self.snake.snake_length-1)*10)
         self.scoreText.reRender()
         self.scoreText.update(display)
-
-    def update_snake(self, display, offset=[0, 0]):
-        bodyColor = config.WHITE
-        headColor = config.YELLOW
-        for idx, x in enumerate(self.snake_list):
-            if idx == len(self.snake_list)-1:
-                color = headColor
-            else:
-                color = bodyColor
-            pygame.draw.rect(
-                display, color,
-                [
-                    x[0]+offset[0], x[1]+offset[1],
-                    config.SNAKE_BLOCK_SIZE, config.SNAKE_BLOCK_SIZE
-                    ]
-            )
 
     def _handle_menu_controls(self):
         for event in pygame.event.get():
@@ -136,65 +112,50 @@ class GameScreen():
 
             self.controls.handle_input()
 
-            self.x1 += self.controls.x1_change
-            if self.x1 >= config.DIS_WIDTH:
-                self.x1 = 0
-            elif self.x1 < 0:
-                self.x1 = config.DIS_WIDTH - config.SNAKE_BLOCK_SIZE
+            self.snake.move(
+                self.controls.x1_change,
+                self.controls.y1_change,
+                self.scoreText.tH + self.textOffset[1]
+                )
 
-            self.y1 += self.controls.y1_change
-            if self.y1 >= config.DIS_HEIGHT:
-                self.y1 = ceil((self.scoreText.tH + self.textOffset[1])/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
-            elif self.y1 < self.scoreText.tH + self.textOffset[1]:
-                self.y1 = config.DIS_HEIGHT - config.SNAKE_BLOCK_SIZE
+            self.snake.render()
 
-            self.snake_Head = []
-            self.snake_Head.append(self.x1)
-            self.snake_Head.append(self.y1)
-            self.snake_list.append(self.snake_Head)
-            if len(self.snake_list) > self.Length_of_snake:
-                del self.snake_list[0]
+            if self.snake.eats_itself():
+                self.game_over = True
 
-            for bodyCoord in self.snake_list[:-1]:  # Checks if it eats itself
-                if bodyCoord == self.snake_Head:
-                    self.game_over = True
-
-            if self.foodSmall.isEaten(self.x1, self.y1):
+            if self.foodSmall.isEaten(self.snake.x1, self.snake.y1):
                 self.eatSound.play()
                 self.foodSmall.spawn()
                 if self.foodBig.isIdle:
                     self.foodBig.spawn()
-                self.Length_of_snake += 1
+                self.snake.snake_length += 2
 
-            if self.foodBig.isEaten(self.x1, self.y1):
+            if self.foodBig.isEaten(self.snake.x1, self.snake.y1):
                 self.eatBigSound.play()
                 self.foodBig.turn_idle()
-                self.Length_of_snake += 5
+                self.snake.snake_length += 6
                 self.screen_shake = 13
 
     def update(self, display):
-        if self.game_over:
-            #self.gameOverMsg.update(display)
+        offset = [0, 0]
+        if self.screen_shake:
+            offset[0] = randint(0, 14) - 7
+            offset[1] = randint(0, 14) - 7
+            self.screen_shake -= 1
+        # Background
+        display.fill(config.BLACK)
+        # Snake
+        self.snake.update(display, offset)
+        # Score
+        pygame.draw.rect(
+            display, config.WHITE,
+            [0, 0, config.DIS_WIDTH, self.scoreText.tH + self.textOffset[1]]
+            )
+        self.update_score(display)
+        # Food
+        self.foodSmall.update(display, offset)
+        self.foodBig.update(display, offset)
+        if self.controls.pause:
+            self.pauseMenu.update(display, self.cursorPos)
+        elif self.game_over:
             self.gameOverMenu.update(display, self.cursorPos)
-        else:
-            offset = [0, 0]
-            if self.screen_shake:
-                offset[0] = randint(0, 14) - 7
-                offset[1] = randint(0, 14) - 7
-                self.screen_shake -= 1
-
-            # Background
-            display.fill(config.BLACK)
-            # Snake
-            self.update_snake(display, offset)
-            # Score
-            pygame.draw.rect(
-                display, config.WHITE,
-                [0, 0, config.DIS_WIDTH, self.scoreText.tH + self.textOffset[1]]
-                )
-            self.update_score(display)
-            # Food
-            self.foodSmall.update(display, offset)
-            self.foodBig.update(display, offset)
-            if self.controls.pause:
-                self.pauseMenu.update(display, self.cursorPos)
