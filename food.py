@@ -6,13 +6,13 @@ from math import ceil
 
 class Food():
     # TODO: introduce typing information to enforce alway an int in unitSize
-    def __init__(self, playScreenSize, unitSize=1, spawnTime=0, prob=1.1, color=config.GREEN, blinkRate=0):
-        self.playScreenSize = playScreenSize
-        self.posX = round(random.randrange(0, self.playScreenSize[0] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
+    def __init__(self, screen_size, unitSize=1, spawnTime=0, prob=1.1, color=config.GREEN, blinkRate=0):
+        self.screenSize = screen_size
+        self.posX = round(random.randrange(0, self.screenSize[0] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
             * config.SNAKE_BLOCK_SIZE
-        self.posY = round(random.randrange(0, self.playScreenSize[1] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
+        self.posY = round(random.randrange(0, self.screenSize[1] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
             * config.SNAKE_BLOCK_SIZE \
-            + ceil((config.DIS_HEIGHT - self.playScreenSize[1])/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
+            + ceil((config.DIS_HEIGHT - self.screenSize[1])/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
         self.unitSize = unitSize
         self.size = self.unitSize * config.SNAKE_BLOCK_SIZE
         self.isAvailable = True
@@ -26,11 +26,11 @@ class Food():
 
     def spawn(self):
         if random.randrange(1, 10)/10 <= self.prob:
-            self.posX = round(random.randrange(0, self.playScreenSize[0] - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
+            self.posX = round(random.randrange(0, self.screenSize[0] - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
                 * config.SNAKE_BLOCK_SIZE
-            self.posY = round(random.randrange(0, self.playScreenSize[1] - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
+            self.posY = round(random.randrange(0, self.screenSize[1] - self.unitSize*config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
                 * config.SNAKE_BLOCK_SIZE \
-                + ceil((config.DIS_HEIGHT - self.playScreenSize[1])/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
+                + ceil((config.DIS_HEIGHT - self.screenSize[1])/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
             self.spawnCounter = self.spawnTime
             self.isIdle = False
 
@@ -71,8 +71,8 @@ class Food():
 
             if self.blinkRate > 0:
                 color = self.blink(self.color)
-                barColor = self.blink(config.GREEN)
-
+                #barColor = self.blink(config.GREEN)
+            barColor = config.GREY
             if self.spawnTime > 0:
                 if not self.isIdle:
                     pygame.draw.rect(
