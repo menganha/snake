@@ -6,21 +6,21 @@ from math import ceil
 
 class Food():
     # TODO: introduce typing information to enforce alway an int in unitSize
-    def __init__(self, screen_size, unitSize=1, spawnTime=0, prob=1.1, color=config.GREEN, blinkRate=0):
+    def __init__(self, screen_size, unit_size=1, spawn_time=0, prob=1.1, color=config.GREEN, blink_rate=0):
         self.screenSize = screen_size
         self.posX = round(random.randrange(0, self.screenSize[0] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
             * config.SNAKE_BLOCK_SIZE
         self.posY = round(random.randrange(0, self.screenSize[1] - config.SNAKE_BLOCK_SIZE)/config.SNAKE_BLOCK_SIZE) \
             * config.SNAKE_BLOCK_SIZE \
             + ceil((config.DIS_HEIGHT - self.screenSize[1])/config.SNAKE_BLOCK_SIZE)*config.SNAKE_BLOCK_SIZE
-        self.unitSize = unitSize
+        self.unitSize = unit_size
         self.size = self.unitSize * config.SNAKE_BLOCK_SIZE
         self.isAvailable = True
-        self.spawnTime = spawnTime
+        self.spawnTime = spawn_time
         self.spawnCounter = 0
         self.prob = prob
         self.color = color
-        self.blinkRate = blinkRate
+        self.blinkRate = blink_rate
         self.blinkCounter = 0
         self.isIdle = False
 
@@ -39,7 +39,7 @@ class Food():
         self.posY = config.DIS_HEIGHT
         self.isIdle = True
 
-    def isEaten(self, x, y):
+    def is_eaten(self, x, y):
         xMet = [x == self.posX+config.SNAKE_BLOCK_SIZE*idx for idx in range(self.unitSize)]
         yMet = [y == self.posY+config.SNAKE_BLOCK_SIZE*idx for idx in range(self.unitSize)]
         if any(xMet) and any(yMet):

@@ -35,7 +35,7 @@ class GameScreen():
             )
         self.foodBig = Food(
             (config.DIS_WIDTH, config.DIS_HEIGHT-self.scoreText.tH-self.textOffset[1]),
-            3, self.spawnTime, 0.5, config.GREEN, blinkRate=2
+            3, self.spawnTime, 0.5, config.GREEN, blink_rate=2
             )
         self.foodBig.turn_idle()
         self.cursorPos = 0
@@ -123,14 +123,14 @@ class GameScreen():
             if self.snake.eats_itself():
                 self.game_over = True
 
-            if self.foodSmall.isEaten(self.snake.x1, self.snake.y1):
+            if self.foodSmall.is_eaten(self.snake.x1, self.snake.y1):
                 self.eatSound.play()
                 self.foodSmall.spawn()
                 if self.foodBig.isIdle:
                     self.foodBig.spawn()
                 self.snake.snake_length += 2
 
-            if self.foodBig.isEaten(self.snake.x1, self.snake.y1):
+            if self.foodBig.is_eaten(self.snake.x1, self.snake.y1):
                 self.eatBigSound.play()
                 self.foodBig.turn_idle()
                 self.snake.snake_length += 6
