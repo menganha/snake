@@ -234,14 +234,14 @@ class GameScreen():
             display.fill(config.BLACK)
             # Snake
             self.update_snake(display, offset)
-            # Food
-            self.foodSmall.update(display, offset)
-            self.foodBig.update(display, offset)
             # Score
             pygame.draw.rect(
                 display, config.WHITE,
                 [0, 0, config.DIS_WIDTH, self.scoreText.tH + self.textOffset[1]]
                 )
             self.update_score(display)
+            # Food
+            self.foodSmall.update(display, offset)
+            self.foodBig.update(display, offset)
             if self.controls.pause:
                 self.update_pause_menu(display)

@@ -47,15 +47,15 @@ class Food():
         else:
             return False
 
-    def blink(self):
+    def blink(self, color1, color2=config.WHITE):
         '''
         Returns color based on time
         '''
-        color = self.color
+        color = color1
         if self.blinkCounter > self.blinkRate and self.blinkCounter <= 2*self.blinkRate:
             self.blinkCounter -= 1
         elif self.blinkCounter <= self.blinkRate and self.blinkCounter > 0:
-            color = config.WHITE
+            color = color2
             self.blinkCounter -= 1
 
         if self.blinkCounter == 0:
@@ -67,15 +67,22 @@ class Food():
 
         if self.spawnCounter >= 0:
 
-            if self.spawnTime > 0:
-                self.spawnCounter -= 1
-
             color = self.color
+
             if self.blinkRate > 0:
-                color = self.blink()
+                color = self.blink(self.color)
+                barColor = self.blink(config.GREEN)
+
+            if self.spawnTime > 0:
+                if not self.isIdle:
+                    pygame.draw.rect(
+                        display, barColor,
+                        [config.DIS_WIDTH-3, 3, -3*self.spawnCounter, 12])
+                self.spawnCounter -= 1
 
             pygame.draw.rect(
                 display, color,
                 [self.posX+offset[0], self.posY+offset[1], self.size, self.size])
+
         elif not self.isIdle:
             self.turn_idle()
