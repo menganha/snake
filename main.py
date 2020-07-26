@@ -1,7 +1,7 @@
 import pygame
 import sys
-from MenuScreen import MenuScreen
-from GameScreen import GameScreen
+from menu_screen import MenuScreen
+from game_screen import GameScreen
 import config
 
 
@@ -34,5 +34,5 @@ class Game:
 
 
 if __name__ == '__main__':
-    gameApp = Game()
-    gameApp.game_loop()
+    game_app = Game()
+    game_app.game_loop()

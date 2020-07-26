@@ -1,5 +1,5 @@
 import pygame
-from Text import Text
+from text import Text
 import config
 
 
@@ -60,7 +60,7 @@ class MenuScreen():
         self.exitButton.reRender()
         if startGame:
             self.nextScene = self.gameScene
-            self.gameScene.reStart()
+            self.gameScene.restart()
 
     def update(self, display):
         display.fill(config.BLACK)

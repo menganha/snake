@@ -18,7 +18,7 @@ class Controls():
         self.x1_change = 0
         self.y1_change = 0
 
-    def handleInput(self):
+    def handle_input(self):
         self.mx, self.my = pygame.mouse.get_pos()
         keys = pygame.key.get_pressed()
         x1_change_old = self.x1_change

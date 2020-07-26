@@ -1,21 +1,19 @@
 import pygame
-from Text import Text
-from Food import Food
-from Controls import Controls
+from text import Text
+from food import Food
+from menu import Menu
+from controls import Controls
 from math import ceil
 from random import randint
 import config
 # TODO:
 # * Improve game over screen. Possibly reuse the pause menu screen
 # Bug fixes:
-# * Big Food finite spawn should be paused both in pause screen and at the
-#   beggining of the game where no key has been pressed
 # * Using escape to exit the pause menu is not possible give the current
 #   input handling. Change it so that it uses the event queue
 # * Big food is positioned in place near the border of the screen
 #   where part of it is clipped
-# For Screen Shake: refactor all update functions to accept an offset which will
-# create the shake
+# * Create the snake class
 
 
 class GameScreen():
@@ -55,53 +53,18 @@ class GameScreen():
         self.nextScene = self
         self.screen_shake = 0
         self.menuScene = None
-        self.createPauseMenu()
+        self.pauseMenu = Menu(
+            self.textFont,
+            ('P A U S E', config.WHITE),
+            ('Continue', config.WHITE),
+            ('Exit', config.WHITE))
+        self.gameOverMenu = Menu(
+            self.textFont,
+            ('G A M E   O V E R', config.RED),
+            ('New Game', config.WHITE),
+            ('Exit', config.WHITE))
 
-    def createPauseMenu(self):
-        self.pauseMenuText = [
-            Text(self.textFont, "P A U S E", config.WHITE),
-            Text(self.textFont, "Continue", config.WHITE),
-            Text(self.textFont, "Exit", config.WHITE)]
-
-        for idx, button in enumerate(self.pauseMenuText):
-            button.center(offY=button.tH*2*(idx-1))
-            if idx == 0:
-                minX = button.tX
-                minY = button.tY
-                maxW = button.tW
-                maxH = button.tH
-            else:
-                if button.tX < minX:
-                    minX = button.tX
-                if button.tY < minY:
-                    minX = button.tX
-                if button.tW > maxW:
-                    maxW = button.tW
-                if button.tY + button.tH > maxH:
-                    maxH = button.tY + button.tH
-
-        border = 10
-        self.minX = minX - border
-        self.minY = minY - border
-        maxW = maxW + 2*border
-        maxH = maxH - minY + 2*border
-        self.menuSurface = pygame.Surface((maxW, maxH))
-        self.menuSurface.fill(config.BLACK)
-        self.menuSurface.set_alpha(100)
-
-    def update_pause_menu(self, display):
-        display.blit(self.menuSurface, [self.minX, self.minY])
-        for idx, button in enumerate(self.pauseMenuText):
-            if idx == 0:
-                button.alpha = 255
-            elif idx - 1 == self.cursorPos:
-                button.alpha = 255
-            else:
-                button.alpha = 125
-            button.reRender()
-            button.update(display)
-
-    def reStart(self):
+    def restart(self):
         self.Length_of_snake = 1
         self.snake_list = []
         self.x1 = round(config.DIS_WIDTH / 2)
@@ -115,11 +78,6 @@ class GameScreen():
         self.scoreText.text = "Score: {:}".format((self.Length_of_snake-1)*10)
         self.scoreText.reRender()
         self.scoreText.update(display)
-
-    def debug_output(self, strings, display):
-        debugText = Text(self.textFont, strings, config.WHITE)
-        debugText.center(offY=40)
-        debugText.update(display)
 
     def update_snake(self, display, offset=[0, 0]):
         bodyColor = config.WHITE
@@ -137,49 +95,46 @@ class GameScreen():
                     ]
             )
 
+    def _handle_menu_controls(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.nextScene = None
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    if self.cursorPos == 0:
+                        if self.controls.pause:
+                            self.controls.pause = False
+                        elif self.game_over:
+                            self.game_over = False
+                            self.restart()
+                    elif self.cursorPos == 1:
+                        self.cursorPos = 0
+                        self.controls.pause = False
+                        self.game_over = False
+                        self.nextScene = self.menuScene
+                if event.key == pygame.K_DOWN:
+                    if not self.cursorPos >= 1:
+                        self.selectSound.play()
+                        self.cursorPos += 1
+                if event.key == pygame.K_UP:
+                    if not self.cursorPos <= 0:
+                        self.selectSound.play()
+                        self.cursorPos -= 1
+                if event.key == pygame.K_ESCAPE:
+                    self.controls.pause = False
+
     def render(self):
 
         self.nextScene = self
 
-        if self.game_over:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        self.game_over = False
-                        self.nextScene = self.menuScene
-                    if event.key == pygame.K_c:
-                        self.game_over = False
-                        self.reStart()
-
-        elif self.controls.pause:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.nextScene = None
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
-                        if self.cursorPos == 0:
-                            self.controls.pause = False
-                        elif self.cursorPos == 1:
-                            self.controls.pause = False
-                            self.cursorPos = 0
-                            self.nextScene = self.menuScene
-                    if event.key == pygame.K_DOWN:
-                        if not self.cursorPos >= 1:
-                            self.selectSound.play()
-                            self.cursorPos += 1
-                    if event.key == pygame.K_UP:
-                        if not self.cursorPos <= 0:
-                            self.selectSound.play()
-                            self.cursorPos -= 1
-                    if event.key == pygame.K_ESCAPE:
-                        self.controls.pause = False
-
+        if self.controls.pause or self.game_over:
+            self._handle_menu_controls()
         else:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.nextScene = None
 
-            self.controls.handleInput()
+            self.controls.handle_input()
 
             self.x1 += self.controls.x1_change
             if self.x1 >= config.DIS_WIDTH:
@@ -217,12 +172,10 @@ class GameScreen():
                 self.Length_of_snake += 5
                 self.screen_shake = 13
 
-            # if not self.foodBig.isIdle:
-            #     self.foodBig.spawnTime -= 1
-
     def update(self, display):
         if self.game_over:
-            self.gameOverMsg.update(display)
+            #self.gameOverMsg.update(display)
+            self.gameOverMenu.update(display, self.cursorPos)
         else:
             offset = [0, 0]
             if self.screen_shake:
@@ -244,4 +197,4 @@ class GameScreen():
             self.foodSmall.update(display, offset)
             self.foodBig.update(display, offset)
             if self.controls.pause:
-                self.update_pause_menu(display)
+                self.pauseMenu.update(display, self.cursorPos)
